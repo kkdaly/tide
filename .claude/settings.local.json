@@ -58,7 +58,7 @@
       "Bash(echo \"PID: $!\")",
       "Bash(tmux list-windows *)",
       "Bash(tmux list-panes *)",
-      "Bash(for f in messages/*.json*)",
+      "Bash(for f in messages/*.json; do *)",
       "Bash(cat messages/*.json*)",
       "Bash(cat /Users/kkdaly/Desktop/test/messages/*.json*)",
       "Bash(find /Users/kkdaly/Desktop/test/messages/*)",
@@ -68,7 +68,10 @@
       "Read(repos/**)",
       "Read(/Users/kkdaly/Desktop/test/messages/**)",
       "Bash(lark-cli api POST *)",
-      "Write(worklogs/**)"
+      "Write(worklogs/**)",
+      "Bash(tmux kill-session *)",
+      "Bash(ls *)",
+      "Bash(find *)"
     ]
   },
   "compactOnStart": true,
