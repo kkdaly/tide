@@ -106,3 +106,49 @@ echo '{"event":{"message":{"content":"{\"text\":\"测试\"}"}}}' > messages/test
 - **msg-watcher 不会在人工 attach 时唤醒 Agent**——检测到 `tmux list-clients` 有人连接就跳过，防止打断你的操作。所以日常要让 Agent 自己跑就 detach。
 - **busy 检测看 `❯` prompt**——Agent 输出末尾有 Claude Code 的 `❯` 说明空闲，否则假定正在处理中，msg-watcher 会等下一轮。
 - **消息文件按 Lark event_id 命名**——Agent 处理后删文件，`.gitkeep` 保留目录结构，msg-watcher 排除 `.gitkeep` 不计入消息数。
+
+## 踩过的坑
+
+### 1. Agent 收到消息但不回复
+
+**症状：** 消息落到了 messages/ 目录，msg-watcher 在跑，但 Agent 没有任何反应。
+
+**原因：** `is_agent_busy()` 只认识 shell prompt（`$` `#` `>`），不认识 Claude Code 的 `❯` prompt。所以每轮检测都判定 Agent "忙碌"，永远不发唤醒键。
+
+**修复：** 把检测逻辑从 `grep -qE '[$#>] $'` 改为 `grep -qE '(❯|[$#>] )'`，同时把检测范围从最后一行扩展到最后 5 行（Claude Code 的 `❯` 后面可能跟着其他 UI 元素）。
+
+### 2. /loop 空转消耗 token
+
+**症状：** 用 `/loop 60s` 让 Agent 定时检查消息，长时间无消息时上下文逐渐膨胀，token 消耗飞快。
+
+**原因：** `/loop` 每次醒来都是一次完整的 AI 调用，即使只是"无新消息"也要消耗 token。而且 /loop 会在 compaction 时把上下文挤掉。
+
+**修复：** 取消 `/loop`，完全依赖外部 msg-watcher.sh 通过 `tmux send-keys` 事件驱动唤醒。Agent 只在有新消息时才工作，零空转消耗。
+
+### 3. msg-watcher 轮询间隔太慢
+
+**症状：** 用户发消息后要等 30 秒才有回复，体验很差。
+
+**原因：** deploy.sh 里 msg-watcher 默认 `sleep 30`。
+
+**修复：** 改为 `sleep 1`，消息到达后最多 1 秒触发唤醒。
+
+### 4. tmux macOS 兼容性
+
+**症状：** macOS 13 Ventura 上 `brew install tmux` 失败——Homebrew 不给旧版本提供预编译包，源码构建也因依赖链失败。
+
+**解决：** 换到较新的 macOS 版本（14+）或 Linux，`brew install tmux` / `apt install tmux` 一行搞定。
+
+### 5. lark-cli 消息输出路径
+
+**症状：** 在 `~` 目录下执行 `lark-cli event +subscribe --output-dir messages/`，消息写到了 `~/messages/` 而不是项目的 `messages/`。
+
+**解决：** 先 `cd` 到项目根目录再执行，或使用绝对路径 `--output-dir /path/to/project/messages/`。
+
+### 6. 人工 attach 导致 Agent 不响应
+
+**症状：** `tmux attach -t oncall-agent` 连上去看 Agent 状态，结果 Agent 再也不处理新消息了。
+
+**原因：** 这是设计行为，不是 bug。`is_human_attached()` 检测到有人连在 session 上就跳过唤醒，防止 `send-keys` 打断你的键盘输入。
+
+**解决：** 看完后按 `Ctrl+B D` 脱离 session，msg-watcher 恢复唤醒。
