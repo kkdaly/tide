@@ -47,13 +47,9 @@ switch_role() {
         echo "  AGENTS.md ✓"
     fi
 
-    # 3. 切换知识库（保留 novels-platform.md 除非角色目录有不同内容）
-    if [ -d "$role_dir/knowledge-base" ] && [ "$(ls -A "$role_dir/knowledge-base" 2>/dev/null)" ]; then
-        cp "$role_dir/knowledge-base/"* "$ROOT_DIR/knowledge-base/" 2>/dev/null
-        echo "  知识库 ✓"
-    fi
+    # 知识库是共享的，不随角色切换
 
-    # 4. 重启 Agent（向 oncall-agent tmux session 注入新 prompt 上下文）
+    # 3. 通知 Agent 重读配置
     if tmux has-session -t oncall-agent 2>/dev/null; then
         tmux send-keys -t oncall-agent "已切换到 $role 角色。请重新阅读 CLAUDE.md 和 AGENTS.md，确认你的新身份和职责。" Enter
         echo "  Agent 已通知 ✓"
