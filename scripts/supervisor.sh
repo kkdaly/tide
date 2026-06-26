@@ -4,7 +4,6 @@
 
 SUPERVISOR_DIR="$(dirname "$0")/.."
 MESSAGES_DIR="$SUPERVISOR_DIR/messages"
-WORKLOG_DIR="$SUPERVISOR_DIR/worklogs"
 
 # 告警函数 —— 按你的 IM 平台实现
 alert() {
@@ -24,11 +23,41 @@ alert() {
     #   -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"[$level] $title\n$detail\"}}"
 }
 
+# 检查是否有人工 attach 到 session
+is_human_attached() {
+    local session="$1"
+    tmux list-clients -t "$session" 2>/dev/null | grep -q .
+}
+
 check_session() {
     local session="$1"
     local label="$2"
     local staleness_sec="${3:-180}"
 
+    # 检查 session 是否存在
+    if ! tmux has-session -t "$session" 2>/dev/null; then
+        alert "warn" "$label session 不存在" "session: $session"
+        return 1
+    fi
+
+    # 有人工 attach → 不干预，退出检查
+    if is_human_attached "$session"; then
+        return 0
+    fi
+
+    # 卡死检测：通过 session 最后活动时间
+    local last_activity now elapsed
+    last_activity=$(tmux display-message -t "$session" -p '#{session_activity}' 2>/dev/null)
+    now=$(date +%s)
+    if [ -n "$last_activity" ] && [ "$last_activity" -gt 0 ]; then
+        elapsed=$((now - last_activity))
+        if [ "$elapsed" -gt "$staleness_sec" ]; then
+            alert "critical" "$label 疑似卡死: ${elapsed}秒无活动" "session: $session (阈值: ${staleness_sec}秒)"
+            return 1
+        fi
+    fi
+
+    # 获取最近输出
     local output
     output=$(tmux capture-pane -t "$session" -p -S -50 2>/dev/null)
 
@@ -49,6 +78,11 @@ check_session() {
 }
 
 main() {
+    # tmux 不可用则静默退出
+    if ! command -v tmux &>/dev/null; then
+        exit 0
+    fi
+
     local date_str
     date_str=$(date "+%Y-%m-%d %H:%M:%S")
 
