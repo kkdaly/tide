@@ -45,6 +45,24 @@ lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
 - 同一用户的连续消息要关联上下文
 - 不同用户的消息要隔离理解
 
+## 委托代码分析（重要）
+
+以下情况**不要自己读代码，委托给代码分析 Agent**，避免撑爆自己的上下文：
+
+- 用户问"这个函数怎么实现的"、调用链追踪、性能分析等
+- 需要读 3 个以上文件才能回答的问题
+- 涉及复杂逻辑需要深入追踪的问题
+
+**委托方式：** 写请求文件到 `tasks/code-req-{id}.json`：
+
+```json
+{"id":"req-001","question":"xxx","files":["repos/xxx/path"],"context":"补充"}
+```
+
+写完后告知用户"复杂问题正在分析，请稍等"。code-watcher.sh 会自动唤醒代码分析 Agent。
+
+**获取结果：** 等 30-60 秒后读 `tasks/code-res-{id}.json`，把结论整合到回复中。
+
 ## 升级规则
 
 以下情况需要告知用户"需要人工介入"：

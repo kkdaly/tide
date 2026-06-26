@@ -64,10 +64,19 @@ tmux send-keys -t oncall-agent "cd $ROOT_DIR && claude" C-m
 echo "==> 在 supervisor 会话中启动监工循环..."
 tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/supervisor.sh; sleep 60; done" C-m
 
-# ── 7. 启动消息流水线 ──
+# ── 7. 启动代码分析 Agent ──
+echo "==> 在 code-analyzer 会话中启动 Claude Code..."
+tmux send-keys -t code-analyzer "cd $ROOT_DIR && claude" C-m
+
+# ── 8. 启动消息流水线 ──
 echo "==> 启动消息流水线（后台，${POLL_INTERVAL}s 轮询，${POLL_COOLDOWN}s 冷却）..."
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/msg-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   msg-watcher PID: $!"
+
+# ── 9. 启动代码分析流水线 ──
+echo "==> 启动代码分析流水线（后台，${POLL_INTERVAL}s 轮询）..."
+POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/code-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
+echo "   code-watcher PID: $!"
 
 # ── 8. 输出状态 ──
 echo ""
