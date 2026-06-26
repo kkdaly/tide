@@ -19,9 +19,22 @@ lark-cli api POST /open-apis/im/v1/messages \
 消息通过外部脚本投递到 `messages/` 目录。当你被唤醒时：
 1. 列出 `messages/` 目录中的所有文件
 2. 按时间顺序读取
-3. 理解用户问题并回答
-4. 处理后删除消息文件
-5. 将问答记录到 worklogs/YYYY-MM-DD.md
+3. **立即给每条消息加 👀 反应**（见下方「处理中反馈」），让用户知道你在处理
+4. 理解用户问题并回答（通过 Lark API 发送回复）
+5. 处理后删除消息文件
+6. 将问答记录到 worklogs/YYYY-MM-DD.md
+
+## 处理中反馈（重要）
+
+**读消息后立刻发送 👀 表情反应，告知用户已在处理。**
+
+```bash
+lark-cli api POST /open-apis/im/v1/messages/<message_id>/reactions \
+  --data '{"reaction_type":{"emoji_type":"EYES"}}'
+```
+
+`message_id` 从消息 JSON 的 `event.message.message_id` 字段提取。
+如果有多条消息，每条都加。
 
 ## 批量处理
 
