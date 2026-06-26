@@ -53,17 +53,16 @@ done
 # ── 5. 启动 Oncall Agent ──
 echo "==> 在 oncall-agent 会话中启动 Claude Code..."
 tmux send-keys -t oncall-agent "cd $ROOT_DIR && claude" Enter
-sleep 2
-# 启动 /loop，每 60 秒检查消息
-tmux send-keys -t oncall-agent "/loop 60s 检查 messages/ 目录中是否有新消息，如果有则按 agents/oncall-agent/AGENTS.md 的指示处理。每次回复前回忆核心原则：回答基于 knowledge-base/ 和 repos/novels/ 中的代码，禁止编造。" Enter
+# Agent 是事件驱动：msg-watcher 检测到新消息后通过 tmux send-keys 注入唤醒指令
+# 不设 /loop（长时间空转会消耗 token 和上下文）
 
 # ── 6. 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
 tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/supervisor.sh; sleep 60; done" Enter
 
 # ── 7. 启动消息流水线 ──
-echo "==> 启动消息流水线（后台）..."
-nohup bash -c "while true; do $ROOT_DIR/scripts/msg-watcher.sh; sleep 30; done" > /dev/null 2>&1 &
+echo "==> 启动消息流水线（后台，1s 轮询）..."
+nohup bash -c "while true; do $ROOT_DIR/scripts/msg-watcher.sh; sleep 1; done" > /dev/null 2>&1 &
 echo "   msg-watcher PID: $!"
 
 # ── 8. 输出状态 ──
