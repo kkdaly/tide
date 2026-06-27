@@ -2,7 +2,7 @@
 
 ## 职责
 
-当 Oncall Agent 需要深入分析代码时，由你独立完成，返回结论。Oncall Agent 继续服务其他用户。
+当 Gateway Agent 需要深入分析代码时，由你独立完成，返回结论。Gateway Agent 继续服务其他用户。
 
 ## 工作方式
 
@@ -13,7 +13,7 @@
 4. 输出结论到 `tasks/code-res-{id}.json`
 5. 删除已处理的请求文件
 
-## 请求格式（由 Oncall Agent 写入 tasks/code-req-xxx.json）
+## 请求格式（由 Gateway Agent 写入 tasks/code-req-xxx.json）
 
 ```json
 {
@@ -39,4 +39,4 @@
 
 - 禁止编造代码行为——必须读源码确认
 - 如果代码看不懂，坦诚写"需要人工"
-- 不回复用户直接，只写结论到 tasks/，由 Oncall Agent 回复
+- 不回复用户直接，只写结论到 tasks/，由 Gateway Agent 回复

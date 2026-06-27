@@ -94,8 +94,10 @@ main() {
     fi
 
     # 检查各 session
-    check_session "oncall-agent" "Oncall" 180
+    check_session "gateway-agent" "Gateway" 180
     check_session "code-analyzer" "CodeAnalyzer" 300
+    check_session "code-review-agent" "CodeReview" 300
+    check_session "deploy-monitor" "DeployMonitor" 300
 
     echo "[$date_str] supervisor check complete"
 }

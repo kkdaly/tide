@@ -1,8 +1,8 @@
-# AI Oncall Agent — 傻瓜式部署教程
+# AI Agent 平台 — 傻瓜式部署教程
 
 ## 这是什么
 
-一个自动回答技术问题的 AI Agent。用户在 IM（飞书/Slack）里 at 你，Agent 自动查知识库和代码，回复答案。
+一个通用 AI Agent 平台。用户在 IM（飞书/Slack）里发消息，Agent 自动查知识库和代码，智能回复。可用于问答、代码审查、发布巡检等场景。
 
 ## 第一步：装依赖
 
@@ -54,7 +54,7 @@ npm install -g @larksuite/cli
 
 ```markdown
 ## 你是谁
-你是 xxx 项目的 Oncall Agent，负责回答开发者关于 xxx 的技术问题。
+你是 xxx 项目的 AI 助手，负责回答开发者关于 xxx 的技术问题。
 ```
 
 其余不用改。
@@ -113,7 +113,7 @@ lark-cli event +subscribe --output-dir messages/
 想看 Agent 在干嘛：
 
 ```bash
-tmux attach -t oncall-agent   # 进入
+tmux attach -t gateway-agent   # 进入
 # 看完按 Ctrl+B 然后按 D 退出
 ```
 
@@ -142,7 +142,7 @@ POLL_INTERVAL=5 POLL_COOLDOWN=30 ./scripts/deploy.sh
 | 消息落地目录不对 | lark-cli 在 `~` 下跑的 | `cd` 到项目目录再执行 |
 | 多久回复 | Agent 查资料需要 10-60 秒 | 正常，👀 反应会先出现 |
 | 换个项目 | 改第二步的 3 个文件 | 重跑 `./scripts/deploy.sh` |
-| 换 IM 平台 | 改 `agents/oncall-agent/AGENTS.md` 里的回复命令 | 把 lark-cli 换成你的 |
+| 换 IM 平台 | 改 `agents/gateway-agent/AGENTS.md` 里的回复命令 | 把 lark-cli 换成你的 |
 | 重装 tmux | macOS 13 装不上 | 换 macOS 14+ 或 Linux |
 
 ## 停止
@@ -157,13 +157,13 @@ tmux kill-server
 ```
 .
 ├── .claude/CLAUDE.md            ← Agent 身份和核心原则
-├── agents/oncall-agent/AGENTS.md ← 操作指令（怎么回复、升级规则）
+├── agents/gateway-agent/AGENTS.md ← 操作指令（怎么回复、升级规则）
 ├── knowledge-base/              ← 你的项目文档
 ├── repos/                       ← 你的代码仓库 symlink
 ├── scripts/
 │   ├── deploy.sh                ← 一键部署
 │   ├── msg-watcher.sh           ← 消息轮询 + 唤醒
 │   ├── supervisor.sh            ← 监工巡检
-│   └── switch-agent.sh          ← 角色切换
+│   └── *.sh                     ← 任务 watcher
 └── messages/                    ← IM 消息落地（运行时）
 ```

@@ -3,7 +3,7 @@
 # 此脚本由 cron 或 while 循环驱动，不依赖 Harness
 
 MESSAGES_DIR="$(dirname "$0")/../messages"
-AGENT_SESSION="oncall-agent"
+AGENT_SESSION="gateway-agent"
 COOLDOWN_SEC="${POLL_COOLDOWN:-15}"  # 唤醒冷却时间（秒），默认 15
 
 # 检测 Agent 是否忙碌

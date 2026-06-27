@@ -1,5 +1,5 @@
 #!/bin/bash
-# 一键部署 AI Oncall Agent
+# 一键部署 AI Agent 平台
 # 用法: ./scripts/deploy.sh
 # 配置: POLL_INTERVAL=1 POLL_COOLDOWN=15 ./scripts/deploy.sh
 
@@ -46,7 +46,7 @@ fi
 # ── 4. 创建 tmux 会话 ──
 echo "==> 创建 tmux 会话..."
 
-for session in oncall-agent supervisor code-analyzer; do
+for session in gateway-agent supervisor code-analyzer code-review-agent deploy-monitor; do
     if tmux has-session -t "$session" 2>/dev/null; then
         echo "  会话 $session 已存在，跳过"
     else
@@ -55,9 +55,10 @@ for session in oncall-agent supervisor code-analyzer; do
     fi
 done
 
-# ── 5. 启动 Oncall Agent ──
-echo "==> 在 oncall-agent 会话中启动 Claude Code..."
-tmux send-keys -t oncall-agent "cd $ROOT_DIR && claude" C-m
+# ── 5. 启动 Gateway Agent ──
+echo "==> 在 gateway-agent 会话中启动 Claude Code..."
+tmux send-keys -t gateway-agent "cd $ROOT_DIR && claude" C-m
+tmux send-keys -t gateway-agent "读 agents/gateway-agent/CLAUDE.md 和 agents/gateway-agent/AGENTS.md，你是 Gateway Agent，负责接收并分发用户消息" Enter
 # 不设 /loop —— 由外部 msg-watcher 通过 tmux send-keys 事件驱动唤醒，避免空转消耗 token
 
 # ── 6. 启动监工 ──
@@ -67,18 +68,33 @@ tmux send-keys -t supervisor "cd $ROOT_DIR && while true; do ./scripts/superviso
 # ── 7. 启动代码分析 Agent ──
 echo "==> 在 code-analyzer 会话中启动 Claude Code..."
 tmux send-keys -t code-analyzer "cd $ROOT_DIR && claude" C-m
+tmux send-keys -t code-analyzer "读 agents/code-analyzer/AGENTS.md，你是代码分析 Agent，等待 code-watcher 唤醒" Enter
 
-# ── 8. 启动消息流水线 ──
+# ── 8. 启动 Code Review Agent ──
+echo "==> 在 code-review-agent 会话中启动 Claude Code..."
+tmux send-keys -t code-review-agent "cd $ROOT_DIR && claude" C-m
+tmux send-keys -t code-review-agent "读 agents/code-review-agent/CLAUDE.md 和 agents/code-review-agent/AGENTS.md，你是 Code Review Agent，等待 review-watcher 唤醒" Enter
+
+# ── 9. 启动 Deploy Monitor ──
+echo "==> 在 deploy-monitor 会话中启动 Claude Code..."
+tmux send-keys -t deploy-monitor "cd $ROOT_DIR && claude" C-m
+tmux send-keys -t deploy-monitor "读 agents/deploy-monitor/CLAUDE.md 和 agents/deploy-monitor/AGENTS.md，你是发布巡检 Agent，等待 deploy-watcher 唤醒" Enter
+
+# ── 10. 启动消息流水线 ──
 echo "==> 启动消息流水线（后台，${POLL_INTERVAL}s 轮询，${POLL_COOLDOWN}s 冷却）..."
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/msg-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   msg-watcher PID: $!"
 
-# ── 9. 启动代码分析流水线 ──
-echo "==> 启动代码分析流水线（后台，${POLL_INTERVAL}s 轮询）..."
+# ── 11. 启动任务流水线（后台，${POLL_INTERVAL}s 轮询）──
+echo "==> 启动任务流水线（后台）..."
 POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/code-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
 echo "   code-watcher PID: $!"
+POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/review-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
+echo "   review-watcher PID: $!"
+POLL_COOLDOWN="$POLL_COOLDOWN" nohup bash -c "while true; do $ROOT_DIR/scripts/deploy-watcher.sh; sleep $POLL_INTERVAL; done" > /dev/null 2>&1 &
+echo "   deploy-watcher PID: $!"
 
-# ── 8. 输出状态 ──
+# ── 12. 输出状态 ──
 echo ""
 echo "═══════════════════════════════════════════"
 echo "  部署完成"
@@ -88,9 +104,11 @@ echo "tmux 会话:"
 tmux ls 2>/dev/null || echo "  (tmux 未运行)"
 echo ""
 echo "操作:"
-echo "  tmux attach -t oncall-agent    # 查看 Oncall Agent"
-echo "  tmux attach -t supervisor      # 查看监工"
-echo "  tmux attach -t code-analyzer   # 查看代码分析 Agent"
+echo "  tmux attach -t gateway-agent       # 查看 Gateway Agent"
+echo "  tmux attach -t supervisor         # 查看监工"
+echo "  tmux attach -t code-analyzer      # 查看代码分析 Agent"
+echo "  tmux attach -t code-review-agent  # 查看 PR 审查 Agent"
+echo "  tmux attach -t deploy-monitor     # 查看发布巡检 Agent"
 echo ""
 echo "下一步 — 配置 Lark:"
 echo "  1. lark-cli config init        # 输入飞书 App 凭证"
@@ -98,8 +116,11 @@ echo "  2. lark-cli auth login --recommend"
 echo "  3. lark-cli event +subscribe --output-dir $ROOT_DIR/messages/"
 echo ""
 echo "停止:"
-echo "  kill \$(pgrep -f msg-watcher.sh)  # 停止消息流水线"
-echo "  tmux kill-session -t oncall-agent"
+echo "  kill \$(pgrep -f msg-watcher.sh)    # 停止消息流水线"
+echo "  kill \$(pgrep -f code-watcher.sh)   # 停止任务流水线"
+echo "  kill \$(pgrep -f review-watcher.sh)"
+echo "  kill \$(pgrep -f deploy-watcher.sh)"
+echo "  tmux kill-session -t gateway-agent"
 echo "  tmux kill-session -t supervisor"
 echo "  tmux kill-session -t code-analyzer"
 echo "═══════════════════════════════════════════"

@@ -8,7 +8,7 @@
 
 每 60 秒执行：
 
-1. `tmux capture-pane -t oncall-agent -p -S -50` 获取 oncall-agent 最近 50 行输出
+1. `tmux capture-pane -t gateway-agent -p -S -50` 获取 gateway-agent 最近 50 行输出
 2. `tmux capture-pane -t code-analyzer -p -S -50` 获取 code-analyzer 最近 50 行输出
 3. `ls messages/ | wc -l` 检查消息积压
 
@@ -20,7 +20,7 @@
 - 消息积压在合理范围内
 
 ### Agent 空闲 + 有消息积压 → 唤醒
-- tmux send-keys -t oncall-agent "请检查 messages/ 目录中的新消息并处理"
+- tmux send-keys -t gateway-agent "请检查 messages/ 目录中的新消息并处理"
 
 ### 异常 → 通知
 以下情况立即通知：

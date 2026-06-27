@@ -40,7 +40,7 @@ grep -qE '(Processing|Working|Thinking)'
 # OpenClaw   → openclaw.yaml
 ```
 
-其余全部复用：tmux、msg-watcher.sh、supervisor.sh、知识库、roles。
+其余全部复用：tmux、msg-watcher.sh、supervisor.sh、知识库、agents。
 
 ## 换 IM 平台（Lark → 企业微信 / Slack / 其他）
 
@@ -61,7 +61,7 @@ Slack:     socket mode / events API → 写入 messages/
 ncat -l -p 8080 -c 'cat > messages/$(date +%s).json'
 ```
 
-### 2. 发消息 — 改 agents/oncall-agent/AGENTS.md 中的回复命令
+### 2. 发消息 — 改 agents/gateway-agent/AGENTS.md 中的回复命令
 
 ```
 Lark:      lark-cli api POST /open-apis/im/v1/messages ...

@@ -1,13 +1,12 @@
-# Code Review Agent 专属指令
+# Code Review Agent 操作指令
 
-## 消费消息的方式
+## 消费任务
 
-当新的 PR 或被 review 请求时，相关事件会投递到 `messages/` 目录。当你被唤醒时：
-1. 读消息中的 PR 信息（repo、branch、PR number）
-2. 获取 diff（git diff 或 gh pr diff）
-3. 按审查流程分析
-4. 输出评审意见
-5. 通过 Lark API 回复到 PR 或群聊
+被 review-watcher.sh 唤醒后：
+1. 读 `tasks/review-req-*.json`（可能有多个）
+2. 按时间顺序处理
+3. 每个任务完成后立即写 `tasks/review-res-{id}.json`
+4. 删除已处理的请求文件
 
 ## 审查维度
 
@@ -21,12 +20,12 @@
 
 ## 升级规则
 
-以下情况需要告知"需要人工 review"：
+以下情况在 conclusion 中标注 "需要人工 review"：
 - 涉及架构变更
 - 涉及安全敏感代码（认证、加密、支付）
 - 变更超过 500 行
 
-## 禁止的行为
+## 禁止
 
 - 禁止 approve 没有读懂的代码
 - 禁止对不确定的问题给出肯定意见

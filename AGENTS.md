@@ -1,6 +1,6 @@
-# AI Oncall Agent — 通用模板
+# AI Agent 平台
 
-一套通用 AI Agent 基础设施：tmux + CLI 工具 + bash 脚本 + prompt 驱动。不依赖 RAG，不依赖编排框架。可信知识库 + 直接读代码 + 外部轮询唤醒 + 人工可随时介入。
+一套通用 AI Agent 基础设施：tmux + CLI 工具 + bash 脚本 + prompt 驱动。不依赖 RAG，不依赖编排框架。可信知识库 + 直接读代码 + 外部轮询唤醒 + 人工可随时介入。事件驱动的多 Agent 调度平台，不局限于任何特定场景。
 
 ## 快速开始
 
@@ -44,17 +44,21 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 │   ├── CLAUDE.md                ← Agent 核心 prompt
 │   └── settings.local.json      ← Harness 配置
 ├── agents/
-│   ├── oncall-agent/AGENTS.md   ← 主 Agent 操作指令
-│   ├── supervisor-agent/        ← 监工 Agent
-│   └── code-analyzer/           ← 代码分析 Agent
+│   ├── gateway-agent/              ← 主 Agent（消息入口 + AI 路由）
+│   ├── code-analyzer/             ← 代码分析 Agent
+│   ├── code-review-agent/         ← PR 审查 Agent
+│   ├── deploy-monitor/            ← 发布巡检 Agent
+│   └── supervisor-agent/          ← 监工 Agent
 ├── knowledge-base/              ← 知识库（你填内容）
 ├── scripts/
 │   ├── deploy.sh                ← 一键部署
-│   ├── switch-agent.sh          ← 角色切换
-│   ├── msg-watcher.sh           ← 消息流水线
+│   ├── msg-watcher.sh           ← 消息流水线（唤醒 gateway-agent）
+│   ├── code-watcher.sh          ← 代码分析唤醒
+│   ├── review-watcher.sh        ← PR 审查唤醒
+│   ├── deploy-watcher.sh        ← 发布巡检唤醒
 │   ├── supervisor.sh            ← 监工脚本
 │   └── im-setup.md              ← 部署指南 + 踩坑记录
-├── roles/                       ← 可复用的角色配置
+├── tasks/                       ← Agent 间任务传递
 ├── repos/                       ← 代码仓库 symlink
 ├── messages/                    ← IM 消息落地
 └── worklogs/                    ← 问答记录
@@ -63,16 +67,16 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 ## 如何定制
 
 1. **改身份：** 编辑 `.claude/CLAUDE.md` — 改 Agent 的角色定义
-2. **改操作指令：** 编辑 `agents/oncall-agent/AGENTS.md` — 改消息处理流程、回复方式
+2. **改操作指令：** 编辑 `agents/gateway-agent/AGENTS.md` — 改消息处理流程、回复方式
 3. **填知识库：** 编辑 `knowledge-base/` — 写你的项目文档（只写"为什么"和"踩过的坑"，代码能读出的不写）
 4. **关联代码：** `ln -s /your/repo repos/` — Agent 会直接读源码确认
-5. **切换角色：** `./scripts/switch-agent.sh list` 查看可用角色
+5. **添加 Agent：** 在 `agents/` 下新建目录，写 CLAUDE.md + AGENTS.md，deploy.sh 加一个 session 和 watcher
 
 ## 切换 IM 平台
 
 默认支持 Lark。换其他平台改两处：
 - **收消息：** 把消息投递到 `messages/` 目录（webhook / CLI / 脚本）
-- **发消息：** 改 `agents/oncall-agent/AGENTS.md` 中的回复命令
+- **发消息：** 改 `agents/gateway-agent/AGENTS.md` 中的回复命令
 
 ## 部署到 Linux
 
