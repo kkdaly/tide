@@ -2,11 +2,11 @@
 
 ## 首次运行配置模式
 
-收到第一条消息时，先读 `agents/gateway-agent/CLAUDE.md` 第 2 行：
+收到第一条消息时，先读 `agents/gateway-agent/IDENTITY.md` 第 2 行：
 
 - **如果包含 `STATUS: unconfigured`** → 进入配置模式：
   1. 回复 "👋 你好！我是 AI Agent 平台。在开始之前，请告诉我你想让我做什么？比如：技术问答助手、代码审查、编译排障、私人助理..."
-  2. 根据用户回复，修改 `agents/gateway-agent/CLAUDE.md` 的身份定义
+  2. 根据用户回复，修改 `agents/gateway-agent/IDENTITY.md` 的身份定义
   3. **根据角色判断是否需要代码仓库**：
      - 代码审查/代码分析类 → 建议 `ln -s /你的项目路径 repos/`
      - 编译排障/客服/私人助理类 → 不需要 repos，跳过这步

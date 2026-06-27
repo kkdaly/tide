@@ -2,7 +2,7 @@
 
 ## 你是谁
 
-你是 AI Agent 平台的一个 Agent 实例。你的具体身份和职责由 `agents/<your-role>/CLAUDE.md` 定义，操作指令由 `agents/<your-role>/AGENTS.md` 定义。启动时你会被注入角色身份，请严格按角色行事。
+你是 AI Agent 平台的一个 Agent 实例。你的具体身份和职责由 `agents/<your-role>/IDENTITY.md` 定义，操作指令由 `agents/<your-role>/AGENTS.md` 定义。启动时你会被注入角色身份，请严格按角色行事。
 
 ## 核心原则（所有 Agent 遵守）
 

@@ -15,9 +15,9 @@ source "$ROOT_DIR/scripts/harness-presets.sh"
 POLL_INTERVAL="${POLL_INTERVAL:-1}"
 POLL_COOLDOWN="${POLL_COOLDOWN:-15}"
 
-# 首次部署：从默认模板创建 CLAUDE.md（后续重跑不覆盖）
-if [ ! -f "$ROOT_DIR/agents/gateway-agent/CLAUDE.md" ]; then
-    cp "$ROOT_DIR/agents/gateway-agent/IDENTITY.default.md" "$ROOT_DIR/agents/gateway-agent/CLAUDE.md"
+# 首次部署：从默认模板创建 IDENTITY.md（后续重跑不覆盖）
+if [ ! -f "$ROOT_DIR/agents/gateway-agent/IDENTITY.md" ]; then
+    cp "$ROOT_DIR/agents/gateway-agent/IDENTITY.default.md" "$ROOT_DIR/agents/gateway-agent/IDENTITY.md"
 fi
 
 echo "╔══════════════════════════════════════╗"
@@ -144,7 +144,7 @@ echo "  ║                                             ║"
 echo "  ╚══════════════════════════════════════════════╝"
 echo ""
 echo "  手动配置:"
-echo "    agents/gateway-agent/CLAUDE.md   ← Agent 身份"
+echo "    agents/gateway-agent/IDENTITY.md   ← Agent 身份"
 echo "    agents/gateway-agent/AGENTS.md   ← 回复方式"
 echo "    knowledge-base/your-project.md   ← 知识库"
 echo ""
@@ -165,7 +165,7 @@ done
 echo "==> 在 gateway-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t gateway-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "gateway-agent"
-tmux send-keys -t gateway-agent "读gateway的CLAUDE和AGENTS" C-m
+tmux send-keys -t gateway-agent "读gateway的IDENTITY和AGENTS" C-m
 
 # ── 启动监工 ──
 echo "==> 在 supervisor 会话中启动监工循环..."
@@ -181,13 +181,13 @@ tmux send-keys -t code-analyzer "读code-analyzer的AGENTS" C-m
 echo "==> 在 code-review-agent 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t code-review-agent "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "code-review-agent"
-tmux send-keys -t code-review-agent "读code-review的CLAUDE和AGENTS" C-m
+tmux send-keys -t code-review-agent "读code-review的IDENTITY和AGENTS" C-m
 
 # ── 启动 Deploy Monitor ──
 echo "==> 在 deploy-monitor 会话中启动 ${HARNESS_NAME}..."
 tmux send-keys -t deploy-monitor "cd $ROOT_DIR && $HARNESS_START_CMD" C-m
 wait_harness_ready "deploy-monitor"
-tmux send-keys -t deploy-monitor "读deploy-monitor的CLAUDE和AGENTS" C-m
+tmux send-keys -t deploy-monitor "读deploy-monitor的IDENTITY和AGENTS" C-m
 
 # ── 启动消息流水线 ──
 echo "==> 启动消息流水线（后台，${POLL_INTERVAL}s 轮询，${POLL_COOLDOWN}s 冷却）..."

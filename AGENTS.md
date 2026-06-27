@@ -66,11 +66,11 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 ## 如何定制
 
 1. **换 Harness：** `HARNESS=codex ./scripts/deploy.sh` — 支持 claude/codex/trae/openclaw
-2. **改身份：** 编辑 `agents/gateway-agent/CLAUDE.md` — 改 Agent 的角色定义
+2. **改身份：** 编辑 `agents/gateway-agent/IDENTITY.md` — 改 Agent 的角色定义
 3. **改操作指令：** 编辑 `agents/gateway-agent/AGENTS.md` — 改消息处理流程、回复方式
 4. **填知识库：** 编辑 `knowledge-base/` — 写你的项目文档（只写"为什么"和"踩过的坑"，代码能读出的不写）
 5. **关联代码：** `ln -s /your/repo repos/` — Agent 会直接读源码确认
-6. **添加 Agent：** 在 `agents/` 下新建目录，写 CLAUDE.md + AGENTS.md，deploy.sh 加一个 session 和 watcher
+6. **添加 Agent：** 在 `agents/` 下新建目录，写 IDENTITY.md + AGENTS.md，deploy.sh 加一个 session 和 watcher
 
 ## 切换 IM 平台
 
