@@ -40,15 +40,40 @@ Runs multiple AI agents as long-lived tmux sessions. Messages land in a director
 
 ## 快速开始 / Quick Start
 
-### 1. 装依赖 / Install
+> 5 步，15 分钟。其中前 2 步是手动前置，后 3 步全自动。
+
+| 步骤 | 做什么 | 时间 |
+|------|--------|------|
+| 1. 装依赖 | `brew install tmux` + `npm install -g claude-code` | 5 min |
+| 2. API Key | `export ANTHROPIC_API_KEY=sk-xxx` | 1 min |
+| 3. 部署 | `./scripts/deploy.sh` 一条命令 | 1 min |
+| 4. 绑飞书 | 创建应用 → 启动订阅 | 5 min |
+| 5. 发消息 | 给 Bot 说第一句话，自动配置完成 | 1 min |
+
+### 第 1 步：装依赖 / Install
 
 ```bash
-brew install tmux          # macOS
-sudo apt install tmux      # Linux
-npm install -g @anthropic-ai/claude-code   # 或 codex/trae
+# macOS
+brew install tmux
+
+# Linux
+sudo apt install tmux
+
+# AI CLI（选一个）
+npm install -g @anthropic-ai/claude-code   # Claude Code（推荐）
+# 或用 HARNESS=codex 切 Codex CLI
 ```
 
-### 2. 一键部署 / Deploy
+### 第 2 步：配置 API Key / Configure
+
+```bash
+# Claude Code 需要设环境变量，建议写入 ~/.zshrc
+export ANTHROPIC_API_KEY=sk-xxx
+# 如用中转 API，加这行
+export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+```
+
+### 第 3 步：部署 / Deploy
 
 ```bash
 git clone https://github.com/kkdaly/Tinyman.git
@@ -56,7 +81,23 @@ cd Tinyman
 ./scripts/deploy.sh
 ```
 
-部署完成后去飞书给 Bot 发第一条消息，Bot 会自动问你"想让我做什么"，一句回答完成配置。 / After deploy, send the first message to your bot — it automatically asks what type of agent you need. One reply completes setup.
+看到 "部署完成" 即成功。脚本自动完成依赖检查、条款接受、tmux 会话创建、后台进程启动。 / One command — dependency check, terms acceptance, session creation, background watchers.
+
+### 第 4 步：绑定飞书 / Bind Lark
+
+1. [飞书开放平台](https://open.feishu.cn) → 创建企业自建应用
+2. 开启机器人 → 添加权限 `im:message`、`im:message:send_as_bot`、`im:message.group_at_msg`
+3. 订阅事件 `im.message.receive_v1` → 发布上线
+
+```bash
+lark-cli config init          # 输入 App ID + Secret
+lark-cli auth login --recommend
+lark-cli event +subscribe --output-dir ./messages/
+```
+
+### 第 5 步：发消息 / Send Message
+
+在飞书找到 Bot，发第一条消息。Bot 会自动问你"想让我做什么"，一句话完成配置。发送后先看到表情反应，稍后收到回复。 / Send the first message — Bot asks what you need, reply completes setup. Instant emoji feedback, then the answer.
 
 ### 3. 绑定飞书 Bot / Bind Lark Bot
 
