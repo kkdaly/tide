@@ -1,8 +1,11 @@
 #!/bin/bash
-# 代码分析 Agent 唤醒脚本 — 与 msg-watcher 同模式
+# 代码分析 Agent 唤醒脚本
 # 监控 tasks/ 目录，发现代码分析请求时唤醒 code-analyzer
 
-TASKS_DIR="$(dirname "$0")/../tasks"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT_DIR/scripts/harness-presets.sh"
+
+TASKS_DIR="$ROOT_DIR/tasks"
 AGENT_SESSION="code-analyzer"
 COOLDOWN_SEC="${POLL_COOLDOWN:-15}"
 
@@ -17,12 +20,12 @@ is_agent_busy() {
     local recent
     recent=$(echo "$output" | tail -8)
 
-    if echo "$recent" | grep -qE '(thinking|still|Esc to interrupt|ctrl\+o to expand|Do you want to|Waiting…)'; then
-        return 0  # 忙碌
+    if echo "$recent" | grep -qE "$HARNESS_BUSY_PATTERN"; then
+        return 0
     fi
 
-    if echo "$recent" | tail -3 | grep -qE '(❯|[$#>] )'; then
-        return 1  # 空闲
+    if echo "$recent" | tail -3 | grep -qE "$HARNESS_IDLE_PATTERN"; then
+        return 1
     fi
 
     return 0
@@ -44,7 +47,6 @@ main() {
         return
     fi
 
-    # 冷却期
     local cooldown_file="/tmp/code_watcher_cooldown"
     if [ -f "$cooldown_file" ]; then
         local last_wake now elapsed

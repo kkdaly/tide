@@ -39,10 +39,8 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 ```
 .
 ├── AGENTS.md                    ← 项目总览（本文件）
+├── CONVENTIONS.md               ← Agent 平台底座 prompt
 ├── .env.example                 ← 配置文件模板
-├── .claude/
-│   ├── CLAUDE.md                ← Agent 核心 prompt
-│   └── settings.local.json      ← Harness 配置
 ├── agents/
 │   ├── gateway-agent/              ← 主 Agent（消息入口 + AI 路由）
 │   ├── code-analyzer/             ← 代码分析 Agent
@@ -52,6 +50,7 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 ├── knowledge-base/              ← 知识库（你填内容）
 ├── scripts/
 │   ├── deploy.sh                ← 一键部署
+│   ├── harness-presets.sh       ← Harness 预设（Claude/Codex/Trae）
 │   ├── msg-watcher.sh           ← 消息流水线（唤醒 gateway-agent）
 │   ├── code-watcher.sh          ← 代码分析唤醒
 │   ├── review-watcher.sh        ← PR 审查唤醒
@@ -66,11 +65,12 @@ IM 消息 → messages/ → msg-watcher (1s 轮询) → tmux send-keys → Agent
 
 ## 如何定制
 
-1. **改身份：** 编辑 `.claude/CLAUDE.md` — 改 Agent 的角色定义
-2. **改操作指令：** 编辑 `agents/gateway-agent/AGENTS.md` — 改消息处理流程、回复方式
-3. **填知识库：** 编辑 `knowledge-base/` — 写你的项目文档（只写"为什么"和"踩过的坑"，代码能读出的不写）
-4. **关联代码：** `ln -s /your/repo repos/` — Agent 会直接读源码确认
-5. **添加 Agent：** 在 `agents/` 下新建目录，写 CLAUDE.md + AGENTS.md，deploy.sh 加一个 session 和 watcher
+1. **换 Harness：** `HARNESS=codex ./scripts/deploy.sh` — 支持 claude/codex/trae/openclaw
+2. **改身份：** 编辑 `agents/gateway-agent/CLAUDE.md` — 改 Agent 的角色定义
+3. **改操作指令：** 编辑 `agents/gateway-agent/AGENTS.md` — 改消息处理流程、回复方式
+4. **填知识库：** 编辑 `knowledge-base/` — 写你的项目文档（只写"为什么"和"踩过的坑"，代码能读出的不写）
+5. **关联代码：** `ln -s /your/repo repos/` — Agent 会直接读源码确认
+6. **添加 Agent：** 在 `agents/` 下新建目录，写 CLAUDE.md + AGENTS.md，deploy.sh 加一个 session 和 watcher
 
 ## 切换 IM 平台
 

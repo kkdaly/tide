@@ -2,7 +2,10 @@
 # 发布巡检 Agent 唤醒脚本
 # 监控 tasks/ 目录，发现巡检请求时唤醒 deploy-monitor
 
-TASKS_DIR="$(dirname "$0")/../tasks"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT_DIR/scripts/harness-presets.sh"
+
+TASKS_DIR="$ROOT_DIR/tasks"
 AGENT_SESSION="deploy-monitor"
 COOLDOWN_SEC="${POLL_COOLDOWN:-15}"
 
@@ -17,11 +20,11 @@ is_agent_busy() {
     local recent
     recent=$(echo "$output" | tail -8)
 
-    if echo "$recent" | grep -qE '(thinking|still|Esc to interrupt|ctrl\+o to expand|Do you want to|Waiting…)'; then
+    if echo "$recent" | grep -qE "$HARNESS_BUSY_PATTERN"; then
         return 0
     fi
 
-    if echo "$recent" | tail -3 | grep -qE '(❯|[$#>] )'; then
+    if echo "$recent" | tail -3 | grep -qE "$HARNESS_IDLE_PATTERN"; then
         return 1
     fi
 

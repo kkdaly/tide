@@ -1,34 +1,34 @@
 #!/bin/bash
 # 消息流水线：监控消息目录 → 检测 Agent 状态 → 唤醒
-# 此脚本由 cron 或 while 循环驱动，不依赖 Harness
+# 由 deploy.sh 后台驱动，HARNESS 环境变量控制 busy 检测正则
 
-MESSAGES_DIR="$(dirname "$0")/../messages"
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT_DIR/scripts/harness-presets.sh"
+
+MESSAGES_DIR="$ROOT_DIR/messages"
 AGENT_SESSION="gateway-agent"
-COOLDOWN_SEC="${POLL_COOLDOWN:-15}"  # 唤醒冷却时间（秒），默认 15
+COOLDOWN_SEC="${POLL_COOLDOWN:-15}"
 
-# 检测 Agent 是否忙碌
 is_agent_busy() {
     local output
     output=$(tmux capture-pane -t "$AGENT_SESSION" -p -S -20 2>/dev/null)
 
     if [ -z "$output" ]; then
-        return 1  # 无输出 = 不算忙碌
+        return 1
     fi
 
     local recent
     recent=$(echo "$output" | tail -8)
 
-    # Agent 正在处理中 → 忙碌（Claude Code 的状态提示词）
-    if echo "$recent" | grep -qE '(thinking|· still|Esc to interrupt|ctrl\+o to expand|Do you want to|Waiting…)'; then
-        return 0  # 忙碌
+    if echo "$recent" | grep -qE "$HARNESS_BUSY_PATTERN"; then
+        return 0
     fi
 
-    # 最后 3 行中有 ❯ 或 shell prompt → 空闲
-    if echo "$recent" | tail -3 | grep -qE '(❯|[$#>] )'; then
-        return 1  # 空闲
+    if echo "$recent" | tail -3 | grep -qE "$HARNESS_IDLE_PATTERN"; then
+        return 1
     fi
 
-    return 0  # 忙碌
+    return 0
 }
 
 # 检查是否有人工 attach

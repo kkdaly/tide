@@ -50,7 +50,7 @@ npm install -g @larksuite/cli
 
 ### 2.2 Agent 身份 — 告诉 Agent 它是谁
 
-编辑 `.claude/CLAUDE.md`，改第一段：
+编辑 `CONVENTIONS.md`，改底座 prompt；编辑 `agents/gateway-agent/CLAUDE.md` 改入口 Agent 身份：
 
 ```markdown
 ## 你是谁
@@ -156,7 +156,8 @@ tmux kill-server
 
 ```
 .
-├── .claude/CLAUDE.md            ← Agent 身份和核心原则
+├── CONVENTIONS.md                ← Agent 平台底座 prompt
+├── agents/gateway-agent/CLAUDE.md ← Agent 身份
 ├── agents/gateway-agent/AGENTS.md ← 操作指令（怎么回复、升级规则）
 ├── knowledge-base/              ← 你的项目文档
 ├── repos/                       ← 你的代码仓库 symlink

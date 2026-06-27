@@ -1,46 +1,48 @@
 # 切换 Harness / IM 平台
 
-## 换 Harness（Claude Code → Codex / OpenClaw / 其他）
+## 换 Harness
 
-改 2 处：
-
-### 1. deploy.sh — 启动命令
+一条命令：
 
 ```bash
-# Claude Code
-tmux send-keys "claude" C-m
-
-# Codex CLI
-tmux send-keys "codex exec" C-m
-
-# OpenClaw
-tmux send-keys "openclaw serve" C-m
+HARNESS=codex ./scripts/deploy.sh     # Codex CLI
+HARNESS=trae ./scripts/deploy.sh      # Trae CLI
+HARNESS=openclaw ./scripts/deploy.sh  # OpenClaw
+# 默认 Claude Code
+./scripts/deploy.sh
 ```
 
-### 2. msg-watcher.sh — 忙碌检测正则
+或写入 `.env`：
 
 ```bash
-# Claude Code (❯ prompt + thinking/esc to interrupt)
-grep -qE '(thinking|still|Esc to interrupt|ctrl\+o to expand|Do you want to|Waiting…)'
-grep -qE '(❯|[$#>] )'
-
-# Codex CLI (▸ prompt + Working/Generating)
-grep -qE '(Working…|Generating…|Processing)'
-grep -qE '(▸|❯)'
-
-# OpenClaw (根据实际 UI 调整)
-grep -qE '(Processing|Working|Thinking)'
+HARNESS=codex
 ```
 
-### 3. 配置文件（可选）
+所有 harness 差异集中在 `scripts/harness-presets.sh`：
+
+| 配置项 | 说明 |
+|--------|------|
+| `HARNESS_START_CMD` | 启动命令 |
+| `HARNESS_BUSY_PATTERN` | 忙碌检测正则 |
+| `HARNESS_IDLE_PATTERN` | 空闲检测正则 |
+
+### 添加新 Harness
+
+编辑 `scripts/harness-presets.sh`，加一个 case 分支：
 
 ```bash
-# Claude Code → .claude/settings.local.json + .claude/CLAUDE.md
-# Codex CLI  → .codex/config.yaml
-# OpenClaw   → openclaw.yaml
+case "$HARNESS" in
+    # ... 现有预设 ...
+    mytool)
+        HARNESS_NAME="MyTool"
+        HARNESS_START_CMD="mytool chat"
+        HARNESS_BUSY_PATTERN='(Processing|Thinking)'
+        HARNESS_IDLE_PATTERN='(❯|\$)'
+        ;;
+esac
 ```
 
-其余全部复用：tmux、msg-watcher.sh、supervisor.sh、知识库、agents。
+其余全部复用：tmux、所有 watcher、supervisor、知识库、agents/。
 
 ## 换 IM 平台（Lark → 企业微信 / Slack / 其他）
 
