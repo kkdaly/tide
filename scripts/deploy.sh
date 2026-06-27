@@ -67,9 +67,9 @@ if [ "$HARNESS" = "claude" ]; then
         fi
     done
 
-    tmux send-keys -t "$BOOTSTRAP_SESSION" C-c C-c 2>/dev/null; sleep 1
-    tmux send-keys -t "$BOOTSTRAP_SESSION" "exit" C-m 2>/dev/null; sleep 1
-    tmux kill-session -t "$BOOTSTRAP_SESSION" 2>/dev/null
+    tmux send-keys -t "$BOOTSTRAP_SESSION" C-c C-c 2>/dev/null || true; sleep 1
+    tmux send-keys -t "$BOOTSTRAP_SESSION" "exit" C-m 2>/dev/null || true; sleep 1
+    tmux kill-session -t "$BOOTSTRAP_SESSION" 2>/dev/null || true
 
     if [ "$ACCEPTED" = false ]; then
         echo "   ✗ 条款接受超时，手动运行 claude 一次后重试"
