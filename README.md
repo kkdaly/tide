@@ -1,6 +1,6 @@
 # Tinyman / AI Agent 平台
 
-一套通用 AI Agent 基础设施。**不依赖 RAG、不依赖编排框架、不依赖向量数据库。** Just tmux + Node.js + prompts。跨平台 (macOS/Linux/Windows)。
+一套通用 AI Agent 基础设施。**不依赖 RAG、不依赖编排框架、不依赖向量数据库。** Just tmux + Node.js + prompts。macOS / Linux 可用，Windows 需 itmux（未充分测试）。
 
 ## 为什么选这个 / Why This
 
@@ -9,7 +9,7 @@
 | LangChain / Dify / Coze | 太重，要 Python、要 Docker、要配置平台 |
 | 自建 RAG 方案 | 数据维护成本高，检索噪声大，幻觉来源多 |
 | 买商业 SaaS 平台 | 贵、不灵活、和你的代码仓库脱节 |
-| 自己从零写 | 这个项目已经踩完了所有坑 |
+| 自己从零写 | 从头踩坑太慢 |
 
 **核心哲学：prompt 是最好的代码。** 改场景不改代码，改身份不改变架构。一份配置 + 一套 prompt = 一个新 Agent。
 
@@ -50,9 +50,6 @@ brew install tmux
 
 # Linux
 sudo apt install tmux
-
-# Windows
-# 下载 itmux (https://github.com/...)，解压即用，内置 tmux
 
 # AI CLI（选一个）
 npm install -g @anthropic-ai/claude-code   # Claude Code（推荐）
@@ -183,9 +180,7 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 - **配置驱动。** 新增 agent 改 JSON 就行，不改代码。交互式 CLI 容错。
 - **安全内置。** 防 prompt 注入、禁止危险命令、禁止泄露敏感信息。
 - **上下文持久。** tmux 长驻，不需要每轮重建上下文。
-- **跨平台。** macOS/Linux 原生 tmux，Windows 用 itmux。
-
-
+- **跨平台。** macOS/Linux 原生 tmux（Windows 理论支持 itmux，未实测）。
 
 ## 谁适合用 / Who Is This For
 
