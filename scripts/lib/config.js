@@ -72,6 +72,9 @@ function validateConfig(config) {
     config.agents.forEach((a, i) => {
       if (!a.session) errors.push(`agents[${i}]: 缺少 session`);
       if (!a.identity) errors.push(`agents[${i}]: 缺少 identity`);
+      if (a.description !== undefined && typeof a.description !== 'string') {
+        errors.push(`agents[${i}]: description 必须是字符串`);
+      }
       if (a.stalenessSec !== undefined && (typeof a.stalenessSec !== 'number' || a.stalenessSec < 1)) {
         errors.push(`agents[${i}]: stalenessSec 必须是 >= 1 的数字`);
       }

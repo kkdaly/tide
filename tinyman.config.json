@@ -16,24 +16,28 @@
     {
       "session": "gateway-agent",
       "identity": "gateway",
+      "description": "消息入口，智能路由——简单问答自己处理，复杂任务委托给专业 agent",
       "stalenessSec": 180,
       "watch": { "dir": "messages", "cmd": "读msg并lark回复" }
     },
     {
       "session": "code-analyzer",
       "identity": "code-analyzer",
+      "description": "深度代码分析——追踪调用链、梳理架构逻辑、诊断性能瓶颈",
       "stalenessSec": 300,
       "watch": { "dir": "tasks", "pattern": "code-req-*.json", "cmd": "读tasks并分析代码写结果" }
     },
     {
       "session": "code-review-agent",
       "identity": "code-review-agent",
+      "description": "PR 代码审查——检查正确性、安全性、可维护性，输出 blocker 和 suggestion",
       "stalenessSec": 300,
       "watch": { "dir": "tasks", "pattern": "review-req-*.json", "cmd": "读tasks/review-req并审查代码" }
     },
     {
       "session": "deploy-monitor",
       "identity": "deploy-monitor",
+      "description": "发布巡检——检查构建日志、变更风险、生产指标异常，判断是否可安全上线",
       "stalenessSec": 300,
       "watch": { "dir": "tasks", "pattern": "deploy-req-*.json", "cmd": "读tasks/deploy-req并巡检发布" }
     }
