@@ -136,7 +136,6 @@ async function main() {
   checkDeps(harness);
 
   const agents = config.agents || [];
-  const watchers = config.watchers || [];
   const supervisorStalenessSec = config.supervisorStalenessSec || 180;
   const messageBacklogThreshold = config.messageBacklogThreshold || 10;
   const loopDetectionThreshold = config.loopDetectionThreshold || 5;
@@ -172,19 +171,19 @@ async function main() {
   console.log('==> 在 supervisor 会话中启动监工循环...');
   sendKeys('supervisor', `cd ${ROOT_DIR} && while true; do node scripts/supervisor.js --staleness ${supervisorStalenessSec} --backlog ${messageBacklogThreshold} --loop-threshold ${loopDetectionThreshold}; sleep 60; done`);
 
-  // 启动 watcher 后台进程
+  // 启动 watcher 后台进程（只对有 watch 配置的 agent）
   console.log('==> 启动消息流水线...');
-  watchers.forEach((w) => {
+  agents.filter((a) => a.watch).forEach((a) => {
     const args = [
       path.join(__dirname, 'watcher.js'),
-      '--watch', w.watch,
-      '--session', w.session,
-      '--wake-cmd', w.cmd,
+      '--watch', a.watch.dir,
+      '--session', a.session,
+      '--wake-cmd', a.watch.cmd,
       '--poll-interval', String(config.pollInterval),
       '--poll-cooldown', String(config.pollCooldown),
     ];
-    if (w.pattern) {
-      args.splice(3, 0, '--pattern', w.pattern);
+    if (a.watch.pattern) {
+      args.splice(3, 0, '--pattern', a.watch.pattern);
     }
 
     const child = spawn('node', args, {
@@ -193,7 +192,7 @@ async function main() {
       cwd: ROOT_DIR,
     });
     child.unref();
-    console.log(`   ${w.session} watcher PID: ${child.pid}`);
+    console.log(`   ${a.session} watcher PID: ${child.pid}`);
   });
 
   // 打印摘要
