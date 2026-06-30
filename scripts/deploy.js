@@ -167,9 +167,7 @@ async function main() {
 
   checkDeps(harness);
 
-  const { dirs, agents, projectName, projectDesc, imPlatform } = config;
-  const { messages: messagesDir, repos: reposDir, knowledge: knowledgeDir, worklogs: worklogsDir } = dirs;
-  const { promptBase, supervisorStalenessSec, messageBacklogThreshold, loopDetectionThreshold } = config;
+  const { agents, promptBase, supervisorStalenessSec, messageBacklogThreshold, loopDetectionThreshold } = config;
 
   initIdentities(agents);
   await acceptTerms(harness);
@@ -198,7 +196,7 @@ async function main() {
 
     let initCmd = `读${promptBase}和${identity}的IDENTITY和AGENTS`;
     if (identity === 'gateway') {
-      initCmd = `读${promptBase}和gateway的IDENTITY和AGENTS。项目: ${projectName} — ${projectDesc}。IM平台: ${imPlatform}。目录: messages=${messagesDir}, repos=${reposDir}, knowledge=${knowledgeDir}, worklogs=${worklogsDir}。需要委托任务时读 tinyman.config.json 获取可委托的 agent 列表和描述`;
+      initCmd = `读${promptBase}和gateway的IDENTITY和AGENTS。然后读 tinyman.config.json 获取项目配置`;
     }
     sendKeys(session, initCmd);
   }
