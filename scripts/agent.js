@@ -65,7 +65,10 @@ async function add(rl) {
   }
 
   if (!fs.existsSync(agentsPath)) {
-    fs.writeFileSync(agentsPath, `# ${identity} Agent 操作指令\n\n## 消费任务\n\n被 watcher.js 唤醒后：\n1. 读 tasks/${identity}-req-*.json（可能有多个）\n2. 按时间顺序处理\n3. 完成后写 tasks/${identity}-res-{id}.json\n4. 删除已处理的请求文件\n\n## 处理要求\n\n<!-- 在此填写你的领域专用指令，如审查维度、检查清单、判断标准等 -->\n\n## 禁止\n\n- 禁止在没有读代码的情况下下结论\n- 禁止直接回复用户，只写结论到 tasks/\n`);
+    console.log('  处理要求（如审查维度、检查清单等，直接回车跳过）:');
+    const instructions = await ask(rl, '  > ');
+    const body = instructions || '<!-- 在此填写你的领域专用指令，如审查维度、检查清单、判断标准等 -->';
+    fs.writeFileSync(agentsPath, `# ${identity} Agent 操作指令\n\n## 消费任务\n\n被 watcher.js 唤醒后：\n1. 读 tasks/${identity}-req-*.json（可能有多个）\n2. 按时间顺序处理\n3. 完成后写 tasks/${identity}-res-{id}.json\n4. 删除已处理的请求文件\n\n## 处理要求\n\n${body}\n\n## 禁止\n\n- 禁止在没有读代码的情况下下结论\n- 禁止直接回复用户，只写结论到 tasks/\n`);
     console.log(`  ✓ 已创建 ${session}/AGENTS.md`);
   }
 
