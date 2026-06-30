@@ -97,8 +97,6 @@ async function acceptTerms(harness) {
   console.log('   ✓ 条款已接受');
 }
 
-// ── 从配置读取 agent 和 watcher 列表 ──
-
 // ── 主流程 ──
 async function main() {
   // --stop: 停止所有 watcher 进程
@@ -111,7 +109,7 @@ async function main() {
         const pidFile = path.join(pidDir, f);
         try {
           const pid = parseInt(fs.readFileSync(pidFile, 'utf8'), 10);
-          process.kill(pid, 'SIGTERM');
+          process.kill(pid);
           fs.unlinkSync(pidFile);
           console.log(`   已停止 ${f.replace('tinyman_watcher_', '').replace('.pid', '')} (PID: ${pid})`);
           stopped++;
@@ -149,19 +147,9 @@ async function main() {
 
   checkDeps(harness);
 
-  const dirs = config.dirs || {};
-  const messagesDir = dirs.messages || 'messages';
-  const reposDir = dirs.repos || 'repos';
-  const knowledgeDir = dirs.knowledge || 'knowledge-base';
-  const worklogsDir = dirs.worklogs || 'worklogs';
-
-  const agents = config.agents || [];
-  const projectName = config.projectName || 'Tinyman';
-  const projectDesc = config.projectDesc || '';
-  const imPlatform = config.imPlatform || 'lark';
-  const supervisorStalenessSec = config.supervisorStalenessSec || 180;
-  const messageBacklogThreshold = config.messageBacklogThreshold || 10;
-  const loopDetectionThreshold = config.loopDetectionThreshold || 5;
+  const { dirs, agents, projectName, projectDesc, imPlatform } = config;
+  const { messages: messagesDir, repos: reposDir, knowledge: knowledgeDir, worklogs: worklogsDir } = dirs;
+  const { supervisorStalenessSec, messageBacklogThreshold, loopDetectionThreshold } = config;
 
   initIdentities(agents);
   await acceptTerms(harness);

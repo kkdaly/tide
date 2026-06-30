@@ -17,6 +17,9 @@ const DEFAULTS = {
     tasks: 'tasks',
     worklogs: 'worklogs',
   },
+  supervisorStalenessSec: 180,
+  messageBacklogThreshold: 10,
+  loopDetectionThreshold: 5,
   agents: [],
 };
 
@@ -51,6 +54,15 @@ function validateConfig(config) {
 
   if (typeof config.pollCooldown !== 'number' || config.pollCooldown < 1) {
     errors.push('pollCooldown 必须是 >= 1 的数字');
+  }
+
+  const dirKeys = ['repos', 'knowledge', 'messages', 'tasks', 'worklogs'];
+  if (config.dirs && typeof config.dirs === 'object') {
+    dirKeys.forEach((k) => {
+      if (config.dirs[k] !== undefined && typeof config.dirs[k] !== 'string') {
+        errors.push(`dirs.${k} 必须是字符串`);
+      }
+    });
   }
 
   if (!Array.isArray(config.agents)) {

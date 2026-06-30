@@ -19,7 +19,7 @@ function hasTmux() {
 }
 
 function hasSession(session) {
-  return tmux(`has-session -t "${session}" 2>/dev/null`) !== null;
+  return tmux(`has-session -t "${session}"`) !== null;
 }
 
 function createSession(session, cwd) {

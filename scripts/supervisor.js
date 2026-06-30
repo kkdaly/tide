@@ -15,9 +15,9 @@ const cliArgs = parseArgs();
 const config = loadConfig(rootDir);
 
 const messagesDir = path.resolve(rootDir, config.dirs.messages);
-const defaultStaleness = parseInt(cliArgs.staleness) || config.supervisorStalenessSec || 180;
-const backlogThreshold = parseInt(cliArgs.backlog) || config.messageBacklogThreshold || 10;
-const loopThreshold = parseInt(cliArgs['loop-threshold']) || config.loopDetectionThreshold || 5;
+const defaultStaleness = parseInt(cliArgs.staleness) || config.supervisorStalenessSec;
+const backlogThreshold = parseInt(cliArgs.backlog) || config.messageBacklogThreshold;
+const loopThreshold = parseInt(cliArgs['loop-threshold']) || config.loopDetectionThreshold;
 
 // ── 从 config.agents 构建检查列表 ──
 const CHECKS = (config.agents || []).map((a) => ({
