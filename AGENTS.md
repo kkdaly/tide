@@ -6,8 +6,7 @@
 
 ```bash
 # 1. 配置你的项目信息
-cp .env.example .env
-# 编辑 .env，填入项目名称、IM 平台等
+# 编辑 tinyman.config.json，填入项目名称、IM 平台、agent 列表等
 
 # 2. 填写知识库
 # 编辑 knowledge-base/README.md 和 knowledge-base/your-project.md
@@ -40,7 +39,7 @@ IM 消息 → messages/ → watcher (轮询) → tmux send-keys → Agent 处理
 .
 ├── AGENTS.md                    ← 项目总览（本文件）
 ├── CONVENTIONS.md               ← Agent 平台底座 prompt
-├── .env.example                 ← 配置文件模板
+├── tinyman.config.json          ← 配置文件
 ├── agents/
 │   ├── gateway-agent/              ← 主 Agent（消息入口 + AI 路由）
 │   ├── code-analyzer/             ← 代码分析 Agent

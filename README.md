@@ -212,7 +212,7 @@ node scripts/deploy.js --harness openclaw  # OpenClaw
 ├── README.md
 ├── CONVENTIONS.md                ← Agent 底座 prompt
 ├── AGENTS.md                     ← AI 指令
-├── .env.example                  ← 配置模板
+├── tinyman.config.json           ← 配置文件
 ├── agents/                       ← Agent 身份(IDENTITY.md) + 操作(AGENTS.md)
 ├── knowledge-base/               ← 项目知识库
 ├── scripts/
