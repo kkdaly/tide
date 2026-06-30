@@ -13,25 +13,10 @@ const { resolve: resolveHarness } = require('./harness-presets');
 const { createSession, hasSession, sendKeys, waitUntilReady } = require('./lib/tmux-utils');
 
 const { parseArgs } = require('./lib/cli-args');
+const { loadConfig } = require('./lib/config');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const cliArgs = parseArgs();
-
-// ── 加载配置 ──
-function loadConfig() {
-  let config;
-  try {
-    config = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'tinyman.config.json'), 'utf8'));
-  } catch {
-    console.error('✗ 未找到 tinyman.config.json');
-    process.exit(1);
-  }
-
-  config.harness = cliArgs.harness || config.harness || 'claude';
-  config.pollInterval = parseInt(cliArgs['poll-interval']) || config.pollInterval || 1;
-  config.pollCooldown = parseInt(cliArgs['poll-cooldown']) || config.pollCooldown || 15;
-  return config;
-}
 
 // ── 依赖检查 ──
 function checkDeps(harness) {
@@ -115,7 +100,12 @@ async function acceptTerms(harness) {
 
 // ── 主流程 ──
 async function main() {
-  const config = loadConfig();
+  const config = loadConfig(ROOT_DIR);
+  // CLI 参数覆盖配置文件
+  if (cliArgs.harness) config.harness = cliArgs.harness;
+  if (cliArgs['poll-interval']) config.pollInterval = parseInt(cliArgs['poll-interval']);
+  if (cliArgs['poll-cooldown']) config.pollCooldown = parseInt(cliArgs['poll-cooldown']);
+
   const harness = resolveHarness(config.harness);
 
   console.log('╔══════════════════════════════════════╗');

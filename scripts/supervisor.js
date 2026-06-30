@@ -8,19 +8,13 @@ const path = require('path');
 const { hasSession, capturePane, isHumanAttached, getSessionActivity } = require('./lib/tmux-utils');
 
 const { parseArgs } = require('./lib/cli-args');
+const { loadConfig } = require('./lib/config');
 
 const rootDir = path.resolve(__dirname, '..');
 const cliArgs = parseArgs();
+const config = loadConfig(rootDir);
 
-// ── 配置 ──
-let config;
-try {
-  config = JSON.parse(fs.readFileSync(path.join(rootDir, 'tinyman.config.json'), 'utf8'));
-} catch {
-  config = { agents: [], dirs: { messages: 'messages' } };
-}
-
-const messagesDir = path.resolve(rootDir, config.dirs.messages || 'messages');
+const messagesDir = path.resolve(rootDir, config.dirs.messages);
 const defaultStaleness = parseInt(cliArgs.staleness) || config.supervisorStalenessSec || 180;
 const backlogThreshold = parseInt(cliArgs.backlog) || config.messageBacklogThreshold || 10;
 const loopThreshold = parseInt(cliArgs['loop-threshold']) || config.loopDetectionThreshold || 5;

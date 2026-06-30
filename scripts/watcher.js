@@ -23,17 +23,13 @@ if (!watchDir || !session || !wakeCmd) {
 }
 
 // ── 加载配置 ──
+const { loadConfig } = require('./lib/config');
 const rootDir = path.resolve(__dirname, '..');
-let config;
-try {
-  config = JSON.parse(fs.readFileSync(path.join(rootDir, 'tinyman.config.json'), 'utf8'));
-} catch {
-  config = { harness: 'claude', pollInterval: 1, pollCooldown: 15 };
-}
+const config = loadConfig(rootDir);
 
 const harness = resolveHarness(config.harness);
-const pollInterval = (parseInt(args['poll-interval']) || config.pollInterval || 1) * 1000;
-const cooldownSec = parseInt(args['poll-cooldown']) || config.pollCooldown || 15;
+const pollInterval = (parseInt(args['poll-interval']) || config.pollInterval) * 1000;
+const cooldownSec = parseInt(args['poll-cooldown']) || config.pollCooldown;
 const watchPath = path.resolve(rootDir, watchDir);
 const tmpdir = os.tmpdir();
 const cooldownFile = path.join(tmpdir, `watcher_${session.replace(/[^a-zA-Z0-9]/g, '_')}_cooldown`);
