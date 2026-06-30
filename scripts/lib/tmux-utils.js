@@ -51,7 +51,9 @@ function getSessionActivity(session) {
 
 function sendKeys(session, cmd) {
   const safe = cmd.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-  return tmux(`send-keys -t "${session}" "${safe}" C-m`);
+  const ok = tmux(`send-keys -t "${session}" "${safe}"`);
+  if (ok === null) return null;
+  return tmux(`send-keys -t "${session}" Enter`);
 }
 
 function isAgentBusy(session, harness) {
