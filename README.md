@@ -68,7 +68,7 @@ export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic  # 如用中转
 ### 第 3 步：部署 / Deploy
 
 ```bash
-git clone https://github.com/kkdaly/Tide.git
+git clone https://github.com/kkdaly/tide.git
 cd Tide
 node scripts/deploy.js
 ```
